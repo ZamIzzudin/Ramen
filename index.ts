@@ -28,5 +28,8 @@ Chain.initiateTransaction(transaction_1)
 Chain.initiateTransaction(transaction_2)
 Chain.initiateTransaction(transaction_3)
 
-Chain.minePendingBlock(publicKeyB)
-Chain.minePendingBlock(publicKeyB)
+// for(let i = 1; i < 100; i++){
+//     console.log(i)
+//     Chain.minePendingBlock(publicKeyB)
+// }
+// console.log('DONE')

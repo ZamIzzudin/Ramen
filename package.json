@@ -16,6 +16,7 @@
     "@types/elliptic": "^6.4.18",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
-    "elliptic": "^6.5.7"
+    "elliptic": "^6.5.7",
+    "hex-to-bin": "^1.0.1"
   }
 }

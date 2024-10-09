@@ -7,6 +7,8 @@ export default class Blockchain{
     dificulity: number ;
     pending: Transaction[];
     fee: number;
+    mineRate: number;
+    times: number[];
 
     constructor(){
         this.chain = [this.generateGenesisBlock()]
@@ -14,12 +16,14 @@ export default class Blockchain{
         this.dificulity = 2;
         this.pending = []
         this.fee = 100;
+        this.mineRate = 1000 /* as milisecond */
+        this.times = []
     }
 
     generateGenesisBlock(){
         const genesisTransaction = new Transaction('system','system',{type:'genesis'})
         
-        return new Block('01/01/2001',[genesisTransaction])
+        return new Block(Date.now().toString(),[genesisTransaction],'0',this.dificulity)
     }
 
     getLatestBlock(){
@@ -27,10 +31,12 @@ export default class Blockchain{
     }
 
     minePendingBlock(miner:string){
-        const blockAdded = new Block(Date.now().toString(), this.pending, this.getLatestBlock().hash)
+        const blockAdded = new Block(Date.now().toString(), this.pending, this.getLatestBlock().hash, this.dificulity)
         blockAdded.mineBlock(this.dificulity)
 
-        console.log('Successfully to Added New Block')
+        this.averageTime(parseInt(blockAdded.timestamp))
+        this.adjustDificulity()
+        // console.log('Successfully to Added New Block',this.dificulity)
         this.chain.push(blockAdded)
 
         this.pending = [
@@ -57,18 +63,15 @@ export default class Blockchain{
             block.transaction.forEach((transaction:Transaction) => {
                 if(transaction.data.type === 'transfer'){
                     if(transaction.from === address){
-                        console.log('TRANSFER IN', transaction.data.value)
                         balance += transaction.data.value
                     }
                     if(transaction.to === address){
-                        console.log('TRANSFER OUT', transaction.data.value)
                         balance -= transaction.data.value
                     }
                 }
                 
                 if(transaction.data.type === 'reward'){
                     if(transaction.to === address){
-                        console.log('GAIN REWARD', transaction.data.value)
                         balance += transaction.data.value
                     }
                 }
@@ -82,6 +85,8 @@ export default class Blockchain{
         for(let i = 1; i <= this.chain.length-1 ; i++){
             const current = this.chain[i]
             const previous = this.chain[i - 1]
+
+            if(Math.abs(current.proffOn - previous.proffOn) > 1) return false
 
             if(!current.validateTransaction()){
                 return false
@@ -99,5 +104,25 @@ export default class Blockchain{
         }
 
         return true
+    }
+
+    private adjustDificulity(){
+        const now = Date.now()
+        const timestampBlock = parseInt(this.getLatestBlock().timestamp)
+        if(now - timestampBlock > this.mineRate){
+            this.dificulity--
+        }else{
+            this.dificulity++
+        }
+    }
+
+    private averageTime(timestamp:number){
+        const prev = parseInt(this.getLatestBlock().timestamp)
+        const diff = timestamp - prev
+
+        this.times.push(diff)
+
+        const averageTime = this.times.reduce((total,num) => (total+num))/this.times.length
+        console.log(`dificulity: ${this.dificulity} | diff: ${diff}ms | average: ${averageTime}ms`)
     }
 }

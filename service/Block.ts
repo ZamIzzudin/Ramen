@@ -1,5 +1,6 @@
 import Transaction from "./Transaction";
 import { SHA256 } from "crypto-js";
+import hexToBin from "hex-to-bin";
 
 export default class Block{
     timestamp: string;
@@ -7,28 +8,30 @@ export default class Block{
     previousHash: string;
     hash: string;
     nonce: number;
+    proffOn: number;
 
-    constructor(timestamp:string, transaction:Transaction[], previousHash='0'){
+    constructor(timestamp:string, transaction:Transaction[], previousHash='0',dificulity:number){
         this.timestamp = timestamp;
         this.transaction = transaction;
         this.previousHash = previousHash;
         this.nonce = 0
         this.hash = this.generateHash();
+        this.proffOn = dificulity
     }
 
     generateHash(){
         const value = `${this.timestamp}${this.transaction}${JSON.stringify(this.previousHash)}${this.nonce}`
 
-        return SHA256(value).toString()
+        return hexToBin(SHA256(value).toString())
     }
 
     mineBlock(dificulity:number){
-        while(this.hash.substring(0, dificulity) !== Array(dificulity + 1).join("0")){
+        while(this.hash.substring(0, dificulity) !== "0".repeat(dificulity)){
             this.nonce++
             this.hash = this.generateHash();
         }
 
-        console.log(`Block Is Mined (${this.hash})`)
+        // console.log(`Block Is Mined (${this.hash})`)
     }
 
     validateTransaction(){
