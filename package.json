@@ -17,6 +17,7 @@
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
     "elliptic": "^6.5.7",
-    "hex-to-bin": "^1.0.1"
+    "hex-to-bin": "^1.0.1",
+    "hono": "^4.6.3"
   }
 }

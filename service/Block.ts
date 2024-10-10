@@ -10,13 +10,13 @@ export default class Block{
     nonce: number;
     proffOn: number;
 
-    constructor(timestamp:string, transaction:Transaction[], previousHash='0',dificulity:number){
+    constructor(timestamp:string, transaction:Transaction[], previousHash='0',difficulty:number){
         this.timestamp = timestamp;
         this.transaction = transaction;
         this.previousHash = previousHash;
         this.nonce = 0
         this.hash = this.generateHash();
-        this.proffOn = dificulity
+        this.proffOn = difficulty
     }
 
     generateHash(){
@@ -25,8 +25,8 @@ export default class Block{
         return hexToBin(SHA256(value).toString())
     }
 
-    mineBlock(dificulity:number){
-        while(this.hash.substring(0, dificulity) !== "0".repeat(dificulity)){
+    mineBlock(difficulty:number){
+        while(this.hash.substring(0, difficulty) !== "0".repeat(difficulty)){
             this.nonce++
             this.hash = this.generateHash();
         }

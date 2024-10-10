@@ -4,7 +4,7 @@ import Transaction from "./Transaction"
 export default class Blockchain{
     chain: Block[];
     length: number;
-    dificulity: number ;
+    difficulty: number ;
     pending: Transaction[];
     fee: number;
     mineRate: number;
@@ -13,7 +13,7 @@ export default class Blockchain{
     constructor(){
         this.chain = [this.generateGenesisBlock()]
         this.length = this.chain.length
-        this.dificulity = 2;
+        this.difficulty = 2;
         this.pending = []
         this.fee = 100;
         this.mineRate = 1000 /* as milisecond */
@@ -23,7 +23,7 @@ export default class Blockchain{
     generateGenesisBlock(){
         const genesisTransaction = new Transaction('system','system',{type:'genesis'})
         
-        return new Block(Date.now().toString(),[genesisTransaction],'0',this.dificulity)
+        return new Block(Date.now().toString(),[genesisTransaction],'0',this.difficulty)
     }
 
     getLatestBlock(){
@@ -31,12 +31,12 @@ export default class Blockchain{
     }
 
     minePendingBlock(miner:string){
-        const blockAdded = new Block(Date.now().toString(), this.pending, this.getLatestBlock().hash, this.dificulity)
-        blockAdded.mineBlock(this.dificulity)
+        const blockAdded = new Block(Date.now().toString(), this.pending, this.getLatestBlock().hash, this.difficulty)
+        blockAdded.mineBlock(this.difficulty)
 
         this.averageTime(parseInt(blockAdded.timestamp))
-        this.adjustDificulity()
-        // console.log('Successfully to Added New Block',this.dificulity)
+        this.adjustdifficulty()
+        // console.log('Successfully to Added New Block',this.difficulty)
         this.chain.push(blockAdded)
 
         this.pending = [
@@ -106,13 +106,13 @@ export default class Blockchain{
         return true
     }
 
-    private adjustDificulity(){
+    private adjustdifficulty(){
         const now = Date.now()
         const timestampBlock = parseInt(this.getLatestBlock().timestamp)
         if(now - timestampBlock > this.mineRate){
-            this.dificulity--
+            this.difficulty--
         }else{
-            this.dificulity++
+            this.difficulty++
         }
     }
 
@@ -123,6 +123,6 @@ export default class Blockchain{
         this.times.push(diff)
 
         const averageTime = this.times.reduce((total,num) => (total+num))/this.times.length
-        console.log(`dificulity: ${this.dificulity} | diff: ${diff}ms | average: ${averageTime}ms`)
+        console.log(`difficulty: ${this.difficulty} | diff: ${diff}ms | average: ${averageTime}ms`)
     }
 }
