@@ -1,13 +1,15 @@
-import { Hono } from 'hono'
-import routes from './routes'
+/** @format */
 
-const app = new Hono()
+import { Hono } from "hono";
+import routes from "./routes";
 
-const PORT = 8000
+const app = new Hono();
 
-app.route('/api', routes)
+const PORT = 8000;
+
+app.route("/api", routes);
 
 export default {
-    port: PORT,
-    fetch: app.fetch
-}
+  port: PORT,
+  fetch: app.fetch,
+};

@@ -1,10 +1,21 @@
-import { Hono } from "hono"
-import Blockchain from "./Blockchain"
-import Wallet from "./Wallet"
+/** @format */
 
-const routes = new Hono()
+import { Hono } from "hono";
+import Blockchain from "./Blockchain";
+import Wallet from "./Wallet";
+import PubSub from "./PubSub";
 
-routes.route('/bc', Blockchain)
-routes.route('/wl', Wallet)
+const routes = new Hono();
 
-export default routes
+routes.get("/", (ctx) => {
+  return ctx.json({
+    message: "Welcome to Ra-Man",
+    author: "Yamiyudin",
+  });
+});
+
+routes.route("/bc", Blockchain);
+routes.route("/wl", Wallet);
+routes.route("/ps", PubSub);
+
+export default routes;
