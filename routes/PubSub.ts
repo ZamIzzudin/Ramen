@@ -1,16 +1,16 @@
 /** @format */
 
 import { Hono } from "hono";
-import { default as PS } from "../service/Pubsub";
+import service from "../service";
 
 const PubSub = new Hono();
+const { pubsubHandler } = service;
 
-const PubSubHandler = new PS("testnet");
-
-PubSub.post("/publish", async (ctx) => {
+PubSub.post("/publish/:channel", async (ctx) => {
+  const { channel } = ctx.req.param();
   const body = await ctx.req.json();
 
-  await PubSubHandler.publishMessage(body.message);
+  await pubsubHandler.publishMessage(channel, body.message);
 
   return ctx.json({
     status: "Success Publish Message",

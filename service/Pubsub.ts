@@ -1,16 +1,24 @@
 /** @format */
 
 import Redis from "ioredis";
+import Blockchain from "./Blockchain";
+
+const Channels = {
+  testnet: "testnet",
+  blockchain: "blockhain",
+};
 
 export default class PubSub {
-  channel: string;
+  channels: string[];
   subscriber: Redis;
   publisher: Redis;
+  blockchain: Blockchain;
 
-  constructor(channel: string) {
-    this.channel = channel;
+  constructor(blockchain: Blockchain) {
+    this.channels = Object.keys(Channels);
     this.subscriber = new Redis();
     this.publisher = new Redis();
+    this.blockchain = blockchain;
 
     this.doSubscribe();
 
@@ -19,15 +27,33 @@ export default class PubSub {
     );
   }
 
-  doSubscribe() {
-    this.subscriber.subscribe(this.channel);
+  private doSubscribe() {
+    this.channels.forEach((channel) => {
+      this.subscriber.subscribe(channel);
+    });
   }
 
-  handleMessage(channel: string, message: string) {
-    console.log(`From "${channel}": Message received: ${message}`);
+  private handleMessage(channel: string, message: string) {
+    console.log(`Message received, From "${channel}":`);
+
+    if (channel === Channels.blockchain) {
+      const parsedChain = JSON.parse(message);
+
+      this.blockchain.updateChain(parsedChain);
+    }
   }
 
-  publishMessage(message: string) {
-    this.publisher.publish(this.channel, message);
+  publishMessage(channel: string, message: string) {
+    this.subscriber.unsubscribe(channel, () => {
+      this.publisher.publish(channel, message);
+      this.subscriber.subscribe(channel);
+    });
+  }
+
+  broadcastChain() {
+    this.publishMessage(
+      Channels.blockchain,
+      JSON.stringify(this.blockchain.chain)
+    );
   }
 }

@@ -1,14 +1,17 @@
 /** @format */
 
-import { default as Chain } from "../service";
 import { Hono } from "hono";
+import service from "../service";
 
 import { initiateBlock, miningBlock } from "../utils/bc";
 
 const Blockchain = new Hono();
+const { blockchainHandler, pubsubHandler } = service;
 
 // GET
-Blockchain.get("/blocks", async (ctx) => ctx.json(Chain.chain));
+Blockchain.get("/blocks", async (ctx) => {
+  return ctx.json(blockchainHandler.chain);
+});
 
 // POST
 Blockchain.post("/add-transaction", async (ctx) => {
@@ -25,6 +28,7 @@ Blockchain.post("/add-transaction", async (ctx) => {
 Blockchain.get("/mining/:address", async (ctx) => {
   const { address } = await ctx.req.param();
   miningBlock(address);
+  pubsubHandler.broadcastChain();
 
   return ctx.json({
     message: "Succesfully Mined Block",

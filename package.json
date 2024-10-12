@@ -3,10 +3,14 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "bun --hot index.ts"
+    "start": "bun --hot index.ts",
+    "start-redis": "redis-server",
+    "dev": "redis-server & bun --hot index.ts",
+    "dev_peer": "cross-env GENERATE_PEER_PORT='true' bun --hot index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "cross-env": "^7.0.3"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

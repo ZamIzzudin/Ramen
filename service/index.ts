@@ -1,15 +1,13 @@
 /** @format */
 
-import { config } from "dotenv";
 import Blockchain from "./Blockchain";
-import Transaction from "./Transaction";
-import EC from "../utils/key";
-
-const local = process.env.NODE_ENV || "local";
-config({ path: `.env.${local}` });
+import PubSub from "./Pubsub";
+// import Transaction from "./Transaction";
+// import EC from "../utils/key";
 
 export default (() => {
   const Chain = new Blockchain();
+  const PS = new PubSub(Chain);
   //   const privateKeyA = process.env.PRIVATE_KEY_A || "";
   //   const privateKeyB = process.env.PRIVATE_KEY_B || "";
 
@@ -45,5 +43,8 @@ export default (() => {
 
   //   Chain.minePendingBlock(publicKeyB);
 
-  return Chain;
+  return {
+    blockchainHandler: Chain,
+    pubsubHandler: PS,
+  };
 })();

@@ -1,8 +1,10 @@
 /** @format */
 
-import { default as Chain } from "../service";
+import service from "../service";
 import Transaction from "../service/Transaction";
 import { getWallet } from "./wallet";
+
+const { blockchainHandler } = service;
 
 interface TransactionState {
   from: string;
@@ -21,9 +23,9 @@ export function initiateBlock(payload: TransactionState, pvt: string) {
 
   newTransaction.signTransaction(wallet);
 
-  Chain.initiateTransaction(newTransaction);
+  blockchainHandler.initiateTransaction(newTransaction);
 }
 
 export function miningBlock(address: string) {
-  Chain.minePendingBlock(address);
+  blockchainHandler.minePendingBlock(address);
 }
