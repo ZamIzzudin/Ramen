@@ -2,7 +2,6 @@
 
 import { Hono } from "hono";
 import Blockchain from "./Blockchain";
-import Wallet from "./Wallet";
 import PubSub from "./PubSub";
 
 const routes = new Hono();
@@ -15,7 +14,6 @@ routes.get("/", (ctx) => {
 });
 
 routes.route("/bc", Blockchain);
-routes.route("/wl", Wallet);
 routes.route("/ps", PubSub);
 
 export default routes;

@@ -5,7 +5,7 @@ import { hasherBinary } from "../utils/hasher";
 
 export default class Block {
   timestamp: string;
-  transaction: any;
+  transaction: Transaction[];
   previousHash: string;
   hash: string;
   nonce: number;

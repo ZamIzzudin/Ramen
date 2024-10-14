@@ -6,6 +6,7 @@ import Blockchain from "./Blockchain";
 const Channels = {
   testnet: "testnet",
   blockchain: "blockhain",
+  transaction: "transaction",
 };
 
 export default class PubSub {
@@ -40,6 +41,10 @@ export default class PubSub {
       const parsedChain = JSON.parse(message);
 
       this.blockchain.updateChain(parsedChain);
+    } else if (channel === Channels.transaction) {
+      const parsedTransactionPool = JSON.parse(message);
+
+      this.blockchain.updatePool(parsedTransactionPool);
     }
   }
 
@@ -54,6 +59,13 @@ export default class PubSub {
     this.publishMessage(
       Channels.blockchain,
       JSON.stringify(this.blockchain.chain)
+    );
+  }
+
+  broadcastTransaction() {
+    this.publishMessage(
+      Channels.transaction,
+      JSON.stringify(this.blockchain.transactionPool)
     );
   }
 }

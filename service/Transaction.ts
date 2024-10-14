@@ -1,34 +1,66 @@
 /** @format */
+import { v4 as uuid } from "uuid";
+import { validateSignature } from "../utils/wallet";
+import Wallet from "./Wallet";
 
-import { hasherHex } from "../utils/hasher";
-import { ec } from "elliptic";
+interface OutputState {
+  [key: string]: number;
+}
 
-type Wallet = ec.KeyPair;
+interface inputState {
+  timestamp: number;
+  amount: number;
+  address: string;
+  signature: string;
+}
 
 export default class Transaction {
-  from: string;
-  to: string;
-  data: any;
-  signature: string;
+  id: string;
+  output: OutputState;
+  input: inputState;
 
-  constructor(from: string, to: string, data: any) {
-    this.from = from;
-    this.to = to;
-    this.data = data;
-    this.signature = "";
+  constructor(
+    from: Wallet,
+    to: string,
+    amount: number,
+    output = null,
+    input = null
+  ) {
+    this.id = uuid();
+    this.output = output || this.initOutput(from, to, amount);
+    this.input = input || this.initInput(from);
   }
 
-  generateHash() {
-    return hasherHex(`${this.from}${this.to}${this.data}`);
+  private initInput(from: Wallet) {
+    return {
+      timestamp: Date.now(),
+      amount: from.balance,
+      address: from.publicKey,
+      signature: from.sign(this.output),
+    };
   }
 
-  signTransaction(wallet: Wallet) {
-    if (wallet.getPublic("hex") !== this.from) {
-      throw new Error("Failed to Sign Transaction, Key not Valid");
+  private initOutput(from: Wallet, to: string, amount: number) {
+    let output: OutputState = {};
+
+    output[to] = amount;
+    output[from.publicKey] = from.balance - amount;
+
+    return output;
+  }
+
+  updateOutput(from: Wallet, to: string, amount: number) {
+    if (amount > this.output[from.publicKey]) {
+      throw new Error("Amount exceeds balance");
     }
 
-    const hashed = this.generateHash();
-    const sign = wallet.sign(hashed, "base64");
-    this.signature = sign.toDER("hex");
+    if (!this.output[to]) {
+      this.output[to] = amount;
+    } else {
+      this.output[to] += amount;
+    }
+
+    this.output[from.publicKey] -= amount;
+    this.input = this.initInput(from);
   }
 }

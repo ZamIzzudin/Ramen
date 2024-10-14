@@ -2,11 +2,12 @@
 
 import { Hono } from "hono";
 import service from "../service";
-
-import { initiateBlock, miningBlock } from "../utils/bc";
+import { generateWallet } from "../utils/wallet";
 
 const Blockchain = new Hono();
 const { blockchainHandler, pubsubHandler } = service;
+
+const user = generateWallet();
 
 // GET
 Blockchain.get("/blocks", async (ctx) => {
@@ -16,23 +17,40 @@ Blockchain.get("/blocks", async (ctx) => {
 // POST
 Blockchain.post("/add-transaction", async (ctx) => {
   const body = await ctx.req.json();
-  const key = (await ctx.req.header("pvt_key")) || "";
 
-  initiateBlock(body, key);
+  const response = blockchainHandler.initiateTransaction(
+    user,
+    body.to,
+    body.amount
+  );
+  pubsubHandler.broadcastTransaction();
 
-  return ctx.json({
-    message: "Transaction Initiated",
-  });
+  if (response.status === "failed") {
+    return ctx.json({
+      message: "Failed to Initiate Transaction",
+    });
+  } else {
+    return ctx.json({
+      message: "Transaction Initiated",
+    });
+  }
 });
 
 Blockchain.get("/mining/:address", async (ctx) => {
   const { address } = await ctx.req.param();
-  miningBlock(address);
+
+  const response = blockchainHandler.mineTransactionPool(address);
   pubsubHandler.broadcastChain();
 
-  return ctx.json({
-    message: "Succesfully Mined Block",
-  });
+  if (response.status === "failed") {
+    return ctx.json({
+      message: "Failed to Mine Block",
+    });
+  } else {
+    return ctx.json({
+      message: "Succesfully Mined Block",
+    });
+  }
 });
 
 export default Blockchain;

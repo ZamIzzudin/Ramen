@@ -1,23 +1,27 @@
 /** @format */
 
 import Block from "./Block";
+import Wallet from "./Wallet";
 import Transaction from "./Transaction";
 
-import { parsedWallet } from "../utils/wallet";
-import { hasherHex, hasherBinary } from "../utils/hasher";
+import { validateSignature } from "../utils/wallet";
+import { hasherBinary } from "../utils/hasher";
 
 export default class Blockchain {
   chain: Block[];
   length: number;
   difficulty: number;
-  pending: Transaction[];
+  transactionPool: Transaction[];
   fee: number;
   mineRate: number;
   times: number[];
+  system: Wallet;
 
   constructor() {
+    this.system = new Wallet(99999999999);
+
     this.difficulty = 2;
-    this.pending = [];
+    this.transactionPool = [];
     this.fee = 100;
     this.mineRate = 1000; /* as milisecond */
     this.times = [];
@@ -27,9 +31,8 @@ export default class Blockchain {
 
   // CONFIGURATION SETUP SECTION
   private generateGenesisBlock() {
-    const genesisTransaction = new Transaction("system", "system", {
-      type: "genesis",
-    });
+    const system = this.system;
+    const genesisTransaction = new Transaction(system, "0", 0);
 
     return new Block(
       Date.now().toString(),
@@ -41,7 +44,7 @@ export default class Blockchain {
 
   private adjustdifficulty() {
     const now = Date.now();
-    const timestampBlock = parseInt(this.getLatestBlock().timestamp);
+    const timestampBlock = parseInt(this.chain[this.length - 1].timestamp);
     if (now - timestampBlock > this.mineRate) {
       this.difficulty--;
     } else {
@@ -50,7 +53,7 @@ export default class Blockchain {
   }
 
   private averageTime(timestamp: number) {
-    const prev = parseInt(this.getLatestBlock().timestamp);
+    const prev = parseInt(this.chain[this.length - 1].timestamp);
     const diff = timestamp - prev;
 
     this.times.push(diff);
@@ -63,48 +66,98 @@ export default class Blockchain {
   }
 
   // TRANSACTION SECTION
-  minePendingBlock(miner: string) {
-    const blockAdded = new Block(
+  mineTransactionPool(miner: string) {
+    this.transactionPool.push(new Transaction(this.system, miner, this.fee));
+
+    const validTransaction = this.transactionPool.filter((transaction) =>
+      this.validateTransaction(transaction)
+    );
+
+    const validBlock = new Block(
       Date.now().toString(),
-      this.pending,
-      this.getLatestBlock().hash,
+      validTransaction,
+      this.chain[this.length - 1].hash,
       this.difficulty
     );
-    blockAdded.mineBlock(this.difficulty);
 
-    this.averageTime(parseInt(blockAdded.timestamp));
+    validBlock.mineBlock(this.difficulty);
+
+    this.averageTime(parseInt(validBlock.timestamp));
     this.adjustdifficulty();
-    // console.log('Successfully to Added New Block',this.difficulty)
-    this.chain.push(blockAdded);
+    this.chain.push(validBlock);
 
-    this.pending = [
-      new Transaction("system", miner, { type: "reward", value: this.fee }),
-    ];
+    this.transactionPool = [];
+
+    return {
+      status: "success",
+    };
   }
 
-  initiateTransaction(payload: Transaction) {
-    if (!payload.from || !payload.to) {
-      console.log("Address not Found");
-    } else {
-      if (!this.validateTransaction(payload)) {
-        throw new Error("Failed to Add New Transaction, Signature not Valid");
+  initiateTransaction(wallet: Wallet, to: string, amount: number) {
+    let transaction = this.transactionPool.find(
+      (transaction) => transaction.input.address === wallet.publicKey
+    );
+
+    try {
+      if (transaction) {
+        const indexData = this.transactionPool.indexOf(transaction);
+        // Remove Existing Transaction
+        this.transactionPool.splice(indexData, 1);
+
+        transaction.updateOutput(wallet, to, amount);
       } else {
-        this.pending.push(payload);
+        transaction = wallet.initTransaction(to, amount, this.chain);
       }
+
+      // Push Updated Transaction
+      this.transactionPool.push(transaction);
+      return {
+        status: "success",
+      };
+    } catch (err: any) {
+      console.error(err.message);
+      return {
+        status: "failed",
+      };
     }
   }
 
   // VALIDATION SECTION
   validateTransaction(transaction: Transaction) {
-    const { from, to, data, signature } = transaction;
-    if (from === "system") return true;
+    const {
+      input: { amount, address, signature },
+      output,
+    } = transaction;
 
-    if (!signature || signature.length === 0) {
-      throw new Error("Signature Not Found");
+    const outputTotal = Object.values(output).reduce(
+      (total, amount) => total + amount
+    );
+    let rewardCount = 0;
+
+    if (transaction.input.address === this.system.publicKey) {
+      rewardCount++;
+
+      if (rewardCount > 1) {
+        console.error("Reward exceed limit");
+        return false;
+      }
+
+      if (Object.values(transaction.output)[0] !== this.fee) {
+        console.error("Invalid reward amount");
+        return false;
+      }
+    } else {
+      if (amount !== outputTotal) {
+        console.error("Invalid transaction, amount exceeds balance");
+        return false;
+      }
+
+      if (!validateSignature(address, output, signature)) {
+        console.error("Invalid signature");
+        return false;
+      }
     }
-
-    const publicKey = parsedWallet(from);
-    return publicKey.verify(hasherHex(`${from}${to}${data}`), signature);
+    return true;
   }
 
   validateBlock(chains: Block[]) {
@@ -140,6 +193,7 @@ export default class Blockchain {
     return true;
   }
 
+  // UTILITY SECTION
   updateChain(submittedChain: Block[]) {
     if (submittedChain.length <= this.chain.length) {
       console.log("Chain is not Longer than Current Chain");
@@ -154,33 +208,7 @@ export default class Blockchain {
     this.chain = submittedChain;
   }
 
-  // UTILITY SECTION
-  getWalletBalance(address: string) {
-    let balance = 0;
-
-    this.chain.forEach((block: Block) => {
-      block.transaction.forEach((transaction: Transaction) => {
-        if (transaction.data.type === "transfer") {
-          if (transaction.from === address) {
-            balance += transaction.data.value;
-          }
-          if (transaction.to === address) {
-            balance -= transaction.data.value;
-          }
-        }
-
-        if (transaction.data.type === "reward") {
-          if (transaction.to === address) {
-            balance += transaction.data.value;
-          }
-        }
-      });
-    });
-
-    return balance;
-  }
-
-  getLatestBlock() {
-    return this.chain[this.chain.length - 1];
+  updatePool(transactions: Transaction[]) {
+    this.transactionPool = transactions;
   }
 }
