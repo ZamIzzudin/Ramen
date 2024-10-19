@@ -1,7 +1,11 @@
 /** @format */
 
-import Redis from "ioredis";
+// import Redis from "ioredis";
+import { default as Publisher } from "pusher";
+import { default as Subscriber } from "pusher-js";
+
 import Blockchain from "./Blockchain";
+import Redis from "ioredis";
 
 const Channels = {
   testnet: "testnet",
@@ -9,21 +13,36 @@ const Channels = {
   transaction: "transaction",
 };
 
+const PusherConfig = {
+  appId: process.env.PUSHER_APP_ID || "",
+  key: process.env.PUSHER_KEY || "",
+  secret: process.env.PUSHER_SECRET || "",
+  cluster: process.env.PUSHER_CLUSTER || "",
+  useTLS: true,
+};
+
 export default class PubSub {
   channels: string[];
-  subscriber: Redis;
-  publisher: Redis;
+  subscriber: Subscriber;
+  publisher: Publisher;
+  // subscriber: Redis;
+  // publisher: Redis;
   blockchain: Blockchain;
 
   constructor(blockchain: Blockchain) {
     this.channels = Object.keys(Channels);
-    this.subscriber = new Redis();
-    this.publisher = new Redis();
+    // this.subscriber = new Redis();
+    // this.publisher = new Redis();
+
+    this.subscriber = new Subscriber(PusherConfig.key, {
+      cluster: PusherConfig.cluster,
+    });
+    this.publisher = new Publisher(PusherConfig);
     this.blockchain = blockchain;
 
     this.doSubscribe();
 
-    this.subscriber.on("message", (channel, message) =>
+    this.subscriber.bind("message", (channel: string, message: string) =>
       this.handleMessage(channel, message)
     );
   }
@@ -49,10 +68,7 @@ export default class PubSub {
   }
 
   publishMessage(channel: string, message: string) {
-    this.subscriber.unsubscribe(channel, () => {
-      this.publisher.publish(channel, message);
-      this.subscriber.subscribe(channel);
-    });
+    this.publisher.trigger(channel, "message", message);
   }
 
   broadcastChain() {
