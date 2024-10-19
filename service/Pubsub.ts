@@ -5,7 +5,6 @@ import { default as Publisher } from "pusher";
 import { default as Subscriber } from "pusher-js";
 
 import Blockchain from "./Blockchain";
-import Redis from "ioredis";
 
 const Channels = {
   testnet: "testnet",

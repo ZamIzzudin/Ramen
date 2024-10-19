@@ -1,9 +1,11 @@
 /** @format */
 
 import Transaction from "./Transaction";
+import { v4 as uuid } from "uuid";
 import { hasherBinary } from "../utils/hasher";
 
 export default class Block {
+  id: string;
   timestamp: string;
   transaction: Transaction[];
   previousHash: string;
@@ -17,6 +19,7 @@ export default class Block {
     previousHash: string,
     difficulty: number
   ) {
+    this.id = uuid();
     this.timestamp = timestamp;
     this.transaction = transaction;
     this.previousHash = previousHash;

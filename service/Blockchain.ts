@@ -4,7 +4,7 @@ import Block from "./Block";
 import Wallet from "./Wallet";
 import Transaction from "./Transaction";
 
-import { validateSignature } from "../utils/wallet";
+import { calculateBalance, validateSignature } from "../utils/wallet";
 import { hasherBinary } from "../utils/hasher";
 
 export default class Blockchain {
@@ -18,7 +18,7 @@ export default class Blockchain {
   system: Wallet;
 
   constructor() {
-    this.system = new Wallet(99999999999);
+    this.system = new Wallet();
 
     this.difficulty = 2;
     this.transactionPool = [];
@@ -32,7 +32,21 @@ export default class Blockchain {
   // CONFIGURATION SETUP SECTION
   private generateGenesisBlock() {
     const system = this.system;
-    const genesisTransaction = new Transaction(system, "0", 0);
+
+    const signature = system.sign({
+      from: system.publicKey,
+      to: "0",
+      amount: 0,
+      type: "genesis",
+    });
+
+    const genesisTransaction = new Transaction(
+      system.publicKey,
+      "0",
+      0,
+      "genesis",
+      signature
+    );
 
     return new Block(
       Date.now().toString(),
@@ -67,7 +81,24 @@ export default class Blockchain {
 
   // TRANSACTION SECTION
   mineTransactionPool(miner: string) {
-    this.transactionPool.push(new Transaction(this.system, miner, this.fee));
+    const system = this.system;
+
+    const signature = system.sign({
+      from: system.publicKey,
+      to: miner,
+      amount: this.fee,
+      type: "reward",
+    });
+
+    this.transactionPool.push(
+      new Transaction(
+        this.system.publicKey,
+        miner,
+        this.fee,
+        "reward",
+        signature
+      )
+    );
 
     const validTransaction = this.transactionPool.filter((transaction) =>
       this.validateTransaction(transaction)
@@ -93,70 +124,50 @@ export default class Blockchain {
     };
   }
 
-  initiateTransaction(wallet: Wallet, to: string, amount: number) {
-    let transaction = this.transactionPool.find(
-      (transaction) => transaction.input.address === wallet.publicKey
+  initiateTransaction(
+    from: string,
+    to: string,
+    amount: number,
+    signature: string
+  ) {
+    const newTransaction = new Transaction(
+      from,
+      to,
+      amount,
+      "transfer",
+      signature
     );
 
-    try {
-      if (transaction) {
-        const indexData = this.transactionPool.indexOf(transaction);
-        // Remove Existing Transaction
-        this.transactionPool.splice(indexData, 1);
-
-        transaction.updateOutput(wallet, to, amount);
-      } else {
-        transaction = wallet.initTransaction(to, amount, this.chain);
-      }
-
-      // Push Updated Transaction
-      this.transactionPool.push(transaction);
-      return {
-        status: "success",
-      };
-    } catch (err: any) {
-      console.error(err.message);
+    if (!this.validateTransaction(newTransaction)) {
       return {
         status: "failed",
       };
     }
+
+    this.transactionPool.push(newTransaction);
+
+    return {
+      status: "success",
+      transaction: newTransaction,
+    };
   }
 
   // VALIDATION SECTION
   validateTransaction(transaction: Transaction) {
-    const {
-      input: { amount, address, signature },
-      output,
-    } = transaction;
+    const { from, to, amount, type, signature } = transaction;
 
-    const outputTotal = Object.values(output).reduce(
-      (total, amount) => total + amount
-    );
-    let rewardCount = 0;
+    if (!validateSignature(from, to, amount, type, signature)) {
+      console.error("Invalid signature");
+      return false;
+    }
 
-    if (transaction.input.address === this.system.publicKey) {
-      rewardCount++;
-
-      if (rewardCount > 1) {
-        console.error("Reward exceed limit");
-        return false;
-      }
-
-      if (Object.values(transaction.output)[0] !== this.fee) {
-        console.error("Invalid reward amount");
-        return false;
-      }
-    } else {
-      if (amount !== outputTotal) {
-        console.error("Invalid transaction, amount exceeds balance");
-        return false;
-      }
-
-      if (!validateSignature(address, output, signature)) {
-        console.error("Invalid signature");
+    if (type === "transfer") {
+      if (calculateBalance(this.chain, from) < amount) {
+        console.error("Exceeds Balance");
         return false;
       }
     }
+
     return true;
   }
 
@@ -210,5 +221,27 @@ export default class Blockchain {
 
   updatePool(transactions: Transaction[]) {
     this.transactionPool = transactions;
+  }
+
+  buyBalance(address: string, amount: number) {
+    const system = this.system;
+
+    const signature = system.sign({
+      from: system.publicKey,
+      to: address,
+      amount: amount,
+      type: "buy",
+    });
+
+    const initiateBalance = new Transaction(
+      system.publicKey,
+      address,
+      amount,
+      "buy",
+      signature
+    );
+
+    this.transactionPool.push(initiateBalance);
+    this.mineTransactionPool(this.system.publicKey);
   }
 }

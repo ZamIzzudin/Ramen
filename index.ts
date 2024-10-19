@@ -1,6 +1,7 @@
 /** @format */
 
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import routes from "./routes";
 import { config } from "dotenv";
 
@@ -19,6 +20,12 @@ if (process.env.GENERATE_PEER_PORT === "true") {
   PEER_PORT = parseInt(DEFAULT_PORT) + Math.ceil(Math.random() * 1000);
   syncNode(DEFAULT_NODE_URL);
 }
+
+const corsConfig = {
+  origin: ["http://localhost:3000"],
+};
+
+app.use("/api/*", cors(corsConfig));
 
 app.route("/api", routes);
 
