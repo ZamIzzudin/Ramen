@@ -10,11 +10,24 @@ const Blockchain = new Hono();
 const { blockchainHandler } = service;
 
 const user = generateWallet();
-blockchainHandler.buyBalance(user.publicKey, 5000);
+blockchainHandler.buyBalance(
+  "04c350144d235b8f3cfd3d22759b8290b65774051aae27368e0b334135ea4b23a9ffc1bf9fa29501b83cf18bd492909de2306be34989fec91804989d253a6abd99",
+  5000
+);
 
 // GET
 Blockchain.get("/blocks", async (ctx) => {
   return ctx.json(blockchainHandler.chain);
+});
+
+Blockchain.get("/block/:id", async (ctx) => {
+  const { id } = await ctx.req.param();
+
+  return ctx.json(utilsBC.getBlockByID(id));
+});
+
+Blockchain.get("/transaction-pool", async (ctx) => {
+  return ctx.json(utilsBC.getTransactionPool());
 });
 
 Blockchain.get("/wallet-balance/:address", async (ctx) => {
@@ -76,6 +89,12 @@ Blockchain.post("/add-transaction", async (ctx) => {
   return ctx.json({
     message: "Transaction Initiated",
   });
+});
+
+Blockchain.post("/gas-fee", async (ctx) => {
+  const { amount } = await ctx.req.json();
+
+  return ctx.json(utilsBC.getGasFee(amount));
 });
 
 export default Blockchain;

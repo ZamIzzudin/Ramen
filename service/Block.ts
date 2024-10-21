@@ -14,13 +14,12 @@ export default class Block {
   proffOn: number;
 
   constructor(
-    timestamp: string,
     transaction: Transaction[],
     previousHash: string,
     difficulty: number
   ) {
     this.id = uuid();
-    this.timestamp = timestamp;
+    this.timestamp = new Date().toISOString();
     this.transaction = transaction;
     this.previousHash = previousHash;
     this.nonce = 0;

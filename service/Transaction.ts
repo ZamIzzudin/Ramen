@@ -8,6 +8,7 @@ export default class Transaction {
   amount: number;
   type: string;
   signature: string;
+  timestamp: string;
 
   constructor(
     from: string,
@@ -22,5 +23,6 @@ export default class Transaction {
     this.amount = amount;
     this.type = type;
     this.signature = signature;
+    this.timestamp = new Date().toISOString();
   }
 }

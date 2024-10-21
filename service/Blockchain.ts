@@ -48,12 +48,7 @@ export default class Blockchain {
       signature
     );
 
-    return new Block(
-      Date.now().toString(),
-      [genesisTransaction],
-      "0",
-      this.difficulty
-    );
+    return new Block([genesisTransaction], "0", this.difficulty);
   }
 
   private adjustdifficulty() {
@@ -105,7 +100,6 @@ export default class Blockchain {
     );
 
     const validBlock = new Block(
-      Date.now().toString(),
       validTransaction,
       this.chain[this.length - 1].hash,
       this.difficulty
