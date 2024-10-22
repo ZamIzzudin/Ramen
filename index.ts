@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import routes from "./routes";
 import { config } from "dotenv";
+import { handle } from "@hono/node-server/vercel";
 
 import syncNode from "./utils/syncnode";
 
@@ -29,7 +30,9 @@ app.use("/api/*", cors(corsConfig));
 
 app.route("/api", routes);
 
-export default {
-  port: PEER_PORT || DEFAULT_PORT,
-  fetch: app.fetch,
-};
+// export default {
+//   port: PEER_PORT || DEFAULT_PORT,
+//   fetch: app.fetch,
+// };
+
+export default handle(app);
