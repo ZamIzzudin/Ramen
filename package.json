@@ -3,18 +3,16 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "bun --hot index.ts",
-    "start-redis": "redis-server",
+    "start": "node dist/index.js",
     "dev": "bun --hot index.ts",
-    "dev_peer": "cross-env GENERATE_PEER_PORT='true' bun --hot index.ts",
-    "dev_redis": "redis-server & bun --hot index.ts"
+    "build": "bun run tsc"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "cross-env": "^7.0.3"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.6.3"
   },
   "dependencies": {
     "@types/crypto-js": "^4.2.2",

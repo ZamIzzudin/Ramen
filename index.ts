@@ -2,36 +2,32 @@
 
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { handle } from "hono/vercel";
+
 import routes from "./routes";
 import { config } from "dotenv";
 
 import syncNode from "./utils/syncnode";
 
-const local = process.env.NODE_ENV || "local";
-config({ path: `.env.${local}` });
+export const runtime = "edge";
 
-const app = new Hono();
+config();
 
-const DEFAULT_PORT = process.env.DEFAULT_PORT || "8000";
-const DEFAULT_NODE_URL = `http://localhost:${DEFAULT_PORT}`;
-let PEER_PORT;
+const app = new Hono().basePath("/api");
 
-if (process.env.GENERATE_PEER_PORT === "true") {
-  PEER_PORT = parseInt(DEFAULT_PORT) + Math.ceil(Math.random() * 1000);
-  syncNode(DEFAULT_NODE_URL);
+const DEFAULT_NODE = process.env.DEFAULT_NODE || "";
+
+if (DEFAULT_NODE !== "") {
+  syncNode(DEFAULT_NODE);
 }
 
 const corsConfig = {
   origin: ["http://localhost:3000"],
 };
 
-app.get("/", (ctx) => ctx.redirect("/api"));
-
 app.use("/api/*", cors(corsConfig));
 
 app.route("/api", routes);
 
-export default {
-  port: PEER_PORT || DEFAULT_PORT,
-  fetch: app.fetch,
-};
+export default handle(app);
+// export default app;
