@@ -22,7 +22,7 @@ export default class Blockchain {
 
     this.difficulty = 2;
     this.transactionPool = [];
-    this.fee = 100;
+    this.fee = 10;
     this.mineRate = 1000; /* as milisecond */
     this.times = [];
     this.chain = [this.generateGenesisBlock()];

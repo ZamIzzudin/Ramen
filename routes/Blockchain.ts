@@ -3,13 +3,12 @@
 import { Hono } from "hono";
 import service from "../service";
 import utilsBC from "../utils/blockchain";
-import { generateWallet } from "../utils/wallet";
+// import { generateWallet } from "../utils/wallet";
 
 const Blockchain = new Hono();
 // const { blockchainHandler, pubsubHandler } = service;
 const { blockchainHandler } = service;
 
-const user = generateWallet();
 blockchainHandler.buyBalance(
   "04c350144d235b8f3cfd3d22759b8290b65774051aae27368e0b334135ea4b23a9ffc1bf9fa29501b83cf18bd492909de2306be34989fec91804989d253a6abd99",
   5000
@@ -68,26 +67,27 @@ Blockchain.post("/add-transaction", async (ctx) => {
   const body = await ctx.req.json();
 
   const response = blockchainHandler.initiateTransaction(
-    user.publicKey,
+    body.from,
     body.to,
     body.amount,
-    user.sign({
-      from: user.publicKey,
-      to: body.to,
-      amount: body.amount,
-      type: "transfer",
-    })
+    body.signature
   );
+
   // pubsubHandler.broadcastTransaction();
 
   if (response.status === "failed") {
     return ctx.json({
+      status: "failed",
       message: "Failed to Initiate Transaction",
     });
   }
 
+  blockchainHandler.mineTransactionPool(blockchainHandler.system.publicKey);
+
   return ctx.json({
+    status: "success",
     message: "Transaction Initiated",
+    data: response.transaction,
   });
 });
 

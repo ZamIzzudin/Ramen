@@ -1,7 +1,6 @@
 /** @format */
 
 import { calculateBalance } from "./wallet";
-import Transaction from "../service/Transaction";
 import service from "../service";
 
 export default (() => {
@@ -31,7 +30,7 @@ export default (() => {
       });
     });
 
-    return transactions;
+    return transactions.reverse();
   }
 
   function getWalletBalance(address: string) {
