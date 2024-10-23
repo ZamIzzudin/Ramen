@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "bun run --watch src/app.ts",
     "start": "bun run src/app.ts",
-    "build": "tsc && cp -r api dist/",
+    "build": "tsc --outDir dist",
     "vercel-build": "bun run build"
   },
   "devDependencies": {
