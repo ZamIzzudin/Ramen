@@ -1,6 +1,6 @@
 /** @format */
 
-import sha256 from "crypto-js/sha256";
+import sha256 from "crypto-js/sha256.js";
 
 export function hasherBinary(value: string) {
   return messageToBinary(sha256(value).toString());
