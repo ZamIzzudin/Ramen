@@ -2,10 +2,10 @@
 
 import { ec } from "elliptic";
 const elliptic = new ec("secp256k1");
-import { hasherHex } from "@/utils/hasher.js";
+import { hasherHex } from "./hasher.js";
 
-import Wallet from "@/service/Wallet.js";
-import Block from "@/service/Block.js";
+import Wallet from "../service/Wallet.js";
+import Block from "../service/Block.js";
 
 export const EC = elliptic;
 

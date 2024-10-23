@@ -1,7 +1,7 @@
 /** @format */
 
-import Blockchain from "@/service/Blockchain.js";
-import PubSub from "@/service/Pubsub.js";
+import Blockchain from "./Blockchain.js";
+import PubSub from "./Pubsub.js";
 
 export default (() => {
   const Chain = new Blockchain();

@@ -1,7 +1,7 @@
 /** @format */
 
-import { calculateBalance } from "@/utils/wallet.js";
-import service from "@/service/index.js";
+import { calculateBalance } from "./wallet.js";
+import service from "../service/index.js";
 
 export default (() => {
   const BC = service.blockchainHandler;

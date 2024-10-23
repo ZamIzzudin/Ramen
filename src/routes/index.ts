@@ -1,7 +1,7 @@
 /** @format */
 
 import { Hono } from "hono";
-import Blockchain from "@/routes/Blockchain.js";
+import Blockchain from "./Blockchain.js";
 
 const routes = new Hono();
 

@@ -13,11 +13,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "allowJs": true
   },
   "include": ["src/**/*.ts", "api/**/*.ts"],
   "exclude": ["node_modules", "dist"]

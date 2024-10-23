@@ -4,7 +4,7 @@
 import { default as Publisher } from "pusher";
 import { default as Subscriber } from "pusher-js";
 
-import Blockchain from "@/service/Blockchain.js";
+import Blockchain from "./Blockchain.js";
 
 const Channels = {
   testnet: "testnet",

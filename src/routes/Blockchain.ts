@@ -1,8 +1,8 @@
 /** @format */
 
 import { Hono } from "hono";
-import service from "@/service/index.js";
-import utilsBC from "@/utils/blockchain.js";
+import service from "../service/index.js";
+import utilsBC from "../utils/blockchain.js";
 // import { generateWallet } from "../utils/wallet";
 
 const Blockchain = new Hono();

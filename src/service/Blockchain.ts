@@ -1,11 +1,11 @@
 /** @format */
 
-import Block from "@/service/Block.js";
-import Wallet from "@/service/Wallet.js";
-import Transaction from "@/service/Transaction.js";
+import Block from "./Block.js";
+import Wallet from "./Wallet.js";
+import Transaction from "./Transaction.js";
 
-import { calculateBalance, validateSignature } from "@/utils/wallet.js";
-import { hasherBinary } from "@/utils/hasher.js";
+import { calculateBalance, validateSignature } from "../utils/wallet.js";
+import { hasherBinary } from "../utils/hasher.js";
 
 export default class Blockchain {
   chain: Block[];

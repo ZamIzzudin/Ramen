@@ -1,8 +1,8 @@
 /** @format */
 
-import Transaction from "@/service/Transaction.js";
+import Transaction from "./Transaction.js";
 import { v4 as uuid } from "uuid";
-import { hasherBinary } from "@/utils/hasher.js";
+import { hasherBinary } from "../utils/hasher.js";
 
 export default class Block {
   id: string;

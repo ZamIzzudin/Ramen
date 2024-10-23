@@ -1,6 +1,6 @@
 /** @format */
 
-import service from "@/service/index.js";
+import service from "../service/index.js";
 
 const { blockchainHandler } = service;
 
