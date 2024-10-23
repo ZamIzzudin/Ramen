@@ -1,13 +1,13 @@
 /** @format */
 
-import { SHA256 } from "crypto-js";
+import sha256 from "crypto-js/sha256";
 
 export function hasherBinary(value: string) {
-  return messageToBinary(SHA256(value).toString());
+  return messageToBinary(sha256(value).toString());
 }
 
 export function hasherHex(value: string) {
-  return SHA256(value).toString();
+  return sha256(value).toString();
 }
 
 function messageToBinary(message: string) {
