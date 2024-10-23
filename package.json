@@ -5,7 +5,8 @@
   "scripts": {
     "start": "bun --hot index.ts",
     "dev": "bun --hot index.ts",
-    "build": "esbuild --bundle --outfile=./dist/index.js --platform=node --target=node20 ./index.ts"
+    "build": "esbuild --bundle --outfile=./dist/index.js --platform=node --target=node20 --format=cjs ./index.ts",
+    "lomo": "bun run ./dist/index.js"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -22,7 +23,6 @@
     "dotenv": "^16.4.5",
     "elliptic": "^6.5.7",
     "esbuild": "^0.24.0",
-    "hex-to-bin": "^1.0.1",
     "hono": "^4.6.3",
     "pusher": "^5.2.0",
     "pusher-js": "^8.4.0-rc2",

@@ -2,14 +2,12 @@
 
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-// import { handle } from "hono/vercel";
+import { handle } from "hono/vercel";
 
 import routes from "./routes";
 import { config } from "dotenv";
 
 import syncNode from "./utils/syncnode";
-
-export const runtime = "edge";
 
 config();
 
@@ -31,5 +29,5 @@ app.use("/api/*", cors(corsConfig));
 
 app.route("/api", routes);
 
-// export default handle(app);
-export default app;
+export default handle(app);
+// export default app;
