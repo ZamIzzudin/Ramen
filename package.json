@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "bun --hot index.ts",
-    "dev": "bun --hot index.ts"
+    "dev": "bun --hot index.ts",
+    "build": "esbuild --bundle --outfile=./dist/index.js --platform=node --target=node20 ./index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -20,6 +21,7 @@
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
     "elliptic": "^6.5.7",
+    "esbuild": "^0.24.0",
     "hex-to-bin": "^1.0.1",
     "hono": "^4.6.3",
     "pusher": "^5.2.0",
