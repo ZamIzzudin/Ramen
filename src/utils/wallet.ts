@@ -1,20 +1,21 @@
 /** @format */
 
-import { ec } from "elliptic";
-const elliptic = new ec("secp256k1");
+import elliptic from "elliptic";
+const ec = new elliptic.ec("secp256k1");
+
 import { hasherHex } from "./hasher.js";
 
 import Wallet from "../service/Wallet.js";
 import Block from "../service/Block.js";
 
-export const EC = elliptic;
+export const EC = ec;
 
 export function generateWallet() {
   return new Wallet();
 }
 
 export function parsedWallet(pub: string) {
-  return elliptic.keyFromPublic(pub, "hex");
+  return ec.keyFromPublic(pub, "hex");
 }
 
 export function validateSignature(
