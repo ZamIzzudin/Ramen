@@ -1,7 +1,5 @@
 {
-  "buildCommand": "bun run build",
-  "outputDirectory": "dist",
-  "devCommand": "bun run dev",
+  "version": 2,
   "builds": [
     {
       "src": "api/**/*.ts",
