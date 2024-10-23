@@ -36,6 +36,7 @@ export default class PubSub {
     this.subscriber = new Subscriber(PusherConfig.key, {
       cluster: PusherConfig.cluster,
     });
+
     this.publisher = new Publisher(PusherConfig);
     this.blockchain = blockchain;
 

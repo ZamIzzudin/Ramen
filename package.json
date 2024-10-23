@@ -22,6 +22,7 @@
     "@hono/node-server": "^1.13.2",
     "@types/crypto-js": "^4.2.2",
     "@types/elliptic": "^6.4.18",
+    "@types/pusher-js": "^5.1.0",
     "@types/uuid": "^10.0.0",
     "@vercel/node": "^3.2.23",
     "crypto-js": "^4.2.0",
