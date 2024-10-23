@@ -3,10 +3,10 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
-import routes from "../src/routes";
+import routes from "@/routes/index.js";
 import { config } from "dotenv";
 
-import syncNode from "../src/utils/syncnode";
+import syncNode from "@/utils/syncnode.js";
 
 config();
 

@@ -1,9 +1,9 @@
 /** @format */
 import { ec } from "elliptic";
 
-import { calculateBalance } from "../utils/wallet";
-import { EC } from "../utils/wallet";
-import { hasherHex } from "../utils/hasher";
+import { calculateBalance } from "@/utils/wallet.js";
+import { EC } from "@/utils/wallet.js";
+import { hasherHex } from "@/utils/hasher.js";
 
 interface dataState {
   from: string;
